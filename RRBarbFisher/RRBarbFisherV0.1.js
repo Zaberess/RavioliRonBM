@@ -50,17 +50,21 @@ function onGameTick() {
 					'[DROPPING] Inventory cleared. Returning to IDLE.',
 				);
 				state = 'IDLE';
+				break;
 			}
-			timeout = randomDelay(2, 4);
-			break;
 	}
 }
-
 // === FIND FISHING SPOT ===
 function findFishingSpot() {
 	bot.printLogMessage('[findFishingSpot] Searching for fishing spot...');
 
-	var spot = bot.npcs.getClosest(bot.npcs.getWithIds([fishingSpotID]));
+	// Step 1: get all fishing spot NPCs (returns an array)
+	var fishingSpots = bot.npcs.getWithIds([fishingSpotID]);
+
+	// Step 2: pass that array to getClosest()
+	var spot = bot.npcs.getClosest(fishingSpots);
+
+	// === handle missing spot ===
 	if (!spot) {
 		bugCounterMin++;
 		bot.printLogMessage(
@@ -72,11 +76,12 @@ function findFishingSpot() {
 			bot.printLogMessage(
 				'[findFishingSpot] Too many failures — stopping script.',
 			);
-			bot.stopScript();
+			bot.terminate();
 		}
 		return;
 	}
 
+	// === check for equipment and bait ===
 	if (
 		!bot.inventory.containsAnyIds([baitID]) ||
 		!bot.inventory.containsAnyIds([rodID])
@@ -91,15 +96,20 @@ function findFishingSpot() {
 			bot.printLogMessage(
 				'[findFishingSpot] Too many missing-gear errors — stopping script.',
 			);
-			bot.stopScript();
+			bot.terminate();
 		}
 		return;
 	}
 
+	// === interact with the found spot ===
 	bugCounterMin = 0;
 	bot.printLogMessage(
-		'[findFishingSpot] Everything ready — interacting with fishing spot.',
+		`[findFishingSpot] Interacting with fishing spot ID ${fishingSpotID}.`,
 	);
+	bot.printLogMessage(
+		`[findFishingSpot] NPC name: ${spot.getName()} | location: ${spot.getWorldLocation()}`,
+	);
+
 	bot.npcs.interact(spot, 'Use-rod');
 	bot.printLogMessage(
 		'[findFishingSpot] Interaction sent. Switching to FISHING state.',
@@ -130,7 +140,7 @@ function monitorFishing() {
 			bot.printLogMessage(
 				'[monitorFishing] Drop disabled — stopping script.',
 			);
-			bot.stopScript();
+			bot.terminate();
 		}
 		return;
 	}
