@@ -1,4 +1,4 @@
-// === CONFIGURATION ===
+// Initial Config
 var timeout = 0;
 var state = 'IDLE'; // initial state
 var fishingSpotID = 1542; // Barbarian Fishing spot ID
@@ -9,19 +9,19 @@ var bugCounterMin = 0; // consecutive failure counter
 var bugCounterMax = 5; // stop after this many fails
 var dropEnabled = true;
 
-// === START SCRIPT ===
+// Start Script
 function onStart() {
 	bot.printGameMessage("Ravioli Ron's Barbarian Fishing Script started!");
 	bot.printLogMessage('[START] State set to IDLE.');
 	state = 'IDLE';
 }
 
-// === RANDOM DELAY FUNCTION ===
+// Random delay function
 function randomDelay(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// === MAIN LOOP ===
+// Main loop
 function onGameTick() {
 	bot.printLogMessage(`[TICK] Current state: ${state}, Timeout: ${timeout}`);
 
@@ -54,17 +54,17 @@ function onGameTick() {
 			}
 	}
 }
-// === FIND FISHING SPOT ===
+// Find fishing spot
 function findFishingSpot() {
 	bot.printLogMessage('[findFishingSpot] Searching for fishing spot...');
 
-	// Step 1: get all fishing spot NPCs (returns an array)
+	// Get all fishing spot's
 	var fishingSpots = bot.npcs.getWithIds([fishingSpotID]);
 
-	// Step 2: pass that array to getClosest()
+	// Pass that array to getClosest()
 	var spot = bot.npcs.getClosest(fishingSpots);
 
-	// === handle missing spot ===
+	// Handle missing spot
 	if (!spot) {
 		bugCounterMin++;
 		bot.printLogMessage(
@@ -81,7 +81,7 @@ function findFishingSpot() {
 		return;
 	}
 
-	// === check for equipment and bait ===
+	// Check for equipment and bait
 	if (
 		!bot.inventory.containsAnyIds([baitID]) ||
 		!bot.inventory.containsAnyIds([rodID])
@@ -101,16 +101,14 @@ function findFishingSpot() {
 		return;
 	}
 
-	// === interact with the found spot ===
+	// Interact with the found spot
 	bugCounterMin = 0;
+	bot.printLogMessage(`[findFishingSpot] Interacting with fishing spot`);
 	bot.printLogMessage(
-		`[findFishingSpot] Interacting with fishing spot ID ${fishingSpotID}.`,
-	);
-	bot.printLogMessage(
-		`[findFishingSpot] NPC name: ${spot.getName()} | location: ${spot.getWorldLocation()}`,
+		`[findFishingSpot] ${spot.getName()} at ${spot.getWorldLocation()}`,
 	);
 
-	bot.npcs.interact(spot, 'Use-rod');
+	bot.npcs.interactSupplied(spot, 'Use-rod');
 	bot.printLogMessage(
 		'[findFishingSpot] Interaction sent. Switching to FISHING state.',
 	);
@@ -119,7 +117,7 @@ function findFishingSpot() {
 	timeout = randomDelay(8, 15);
 }
 
-// === MONITOR FISHING ===
+// Monitor fishing
 function monitorFishing() {
 	var anim = client.getLocalPlayer().getAnimation();
 	bot.printLogMessage(`[monitorFishing] Animation: ${anim}`);
@@ -151,7 +149,7 @@ function monitorFishing() {
 	state = 'IDLE';
 }
 
-// === DROP FISH ===
+// Drop fish
 function dropFish() {
 	var inventoryWidgets = bot.inventory.getAllWidgets();
 	var dropsThisTick = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
