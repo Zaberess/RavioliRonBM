@@ -145,6 +145,7 @@ function monitorFishing() {
   if (bot.inventory.getEmptySlots() === 0) {
     bot.printLogMessage("[INFO] Inventory full while fishing → dropping.");
     state = "DROPPING";
+    timeout = randomDelay(2, 8);
     return;
   }
 
@@ -152,6 +153,7 @@ function monitorFishing() {
     bot.printLogMessage("[INFO] Player idle → re-searching for fishing spot.");
     state = "IDLE";
     timeout = randomDelay(3, 6);
+    return;
   }
 }
 
