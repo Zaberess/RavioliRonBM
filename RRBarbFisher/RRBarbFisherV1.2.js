@@ -56,6 +56,7 @@ function onGameTick() {
 
   switch (state) {
     case "IDLE":
+      bot.breakHandler.setBreakHandlerStatus(true);
       bot.printLogMessage("[STATE] Idle → Searching for fishing spot...");
       timeout = randomDelay(3, 12);
       findFishingSpot();
@@ -67,10 +68,12 @@ function onGameTick() {
       break;
 
     case "FISHING":
+      bot.breakHandler.setBreakHandlerStatus(true);
       monitorFishing();
       break;
 
     case "DROPPING":
+      bot.breakHandler.setBreakHandlerStatus(false);
       if (!lastDropStateLogged) {
         bot.printLogMessage("[STATE] Dropping fish...");
         bot.printGameMessage("Dropping fish.");
